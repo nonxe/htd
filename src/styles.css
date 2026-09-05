@@ -210,12 +210,10 @@
 @keyframes tribute-glow-pulse {
   0%,
   100% {
-    opacity: 0.55;
-    transform: scale(1);
+    opacity: 0.45;
   }
   50% {
-    opacity: 0.85;
-    transform: scale(1.06);
+    opacity: 0.8;
   }
 }
 

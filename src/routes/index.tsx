@@ -356,9 +356,13 @@ function Index() {
             className="animate-tribute-letter mt-16 w-full max-w-2xl sm:mt-24"
             style={{ animationDelay: "1.5s" }}
           >
-            <div className="relative overflow-hidden rounded-[26px] sm:rounded-[28px] border border-petal/15 bg-ink2/80 p-6 shadow-[0_30px_90px_-30px_#000] backdrop-blur-md sm:backdrop-blur-xl sm:p-12 md:p-14">
+            <div className="relative overflow-hidden rounded-[26px] sm:rounded-[28px] border border-petal/20 bg-ink2/95 p-6 shadow-[0_25px_70px_-25px_#000] sm:p-12 md:p-14">
+              {/* Inner ambient glow (fully contained, eliminates WebKit dome and tile leaks) */}
+              <div
+                className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--petal)_12%,transparent)_0%,transparent_75%)]"
+                aria-hidden="true"
+              />
               <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-petal/45 to-transparent" />
-              <div className="pointer-events-none absolute -top-28 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-petal/[0.08] blur-3xl" />
               <div className="tribute-grain pointer-events-none absolute inset-0 opacity-20 hidden sm:block" />
 
               <div className="relative text-left">
