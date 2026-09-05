@@ -427,9 +427,6 @@ function Index() {
                     <h2 className="font-serif text-xl sm:text-2xl font-normal text-emberlight">
                       You can reply to the above letter directly from here -
                     </h2>
-                    <p className="mt-1 text-xs sm:text-sm text-emberlight/60 font-light">
-                      Write your thoughts or response below. It will be sent directly 💌
-                    </p>
                   </div>
 
                   {isSubmitted ? (
@@ -487,9 +484,7 @@ function Index() {
 
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                           <span className="text-[11px] text-emberlight/40 font-light order-2 sm:order-1">
-                            {replyText.length > 0
-                              ? `${replyText.length} characters`
-                              : "Takes just a moment"}
+                            {replyText.length > 0 ? `${replyText.length} characters` : ""}
                           </span>
 
                           <button
