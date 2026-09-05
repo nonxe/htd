@@ -15,45 +15,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-/** Smoothed scroll value, updated once per frame and eased for silky parallax. */
-function useSmoothScroll() {
-  const [value, setValue] = useState(0);
-  const target = useRef(0);
-  const current = useRef(0);
-
-  useEffect(() => {
-    let rafId = 0;
-    let running = true;
-
-    const onScroll = () => {
-      target.current = window.scrollY;
-    };
-
-    const tick = () => {
-      if (!running) return;
-      current.current += (target.current - current.current) * 0.12;
-      if (Math.abs(target.current - current.current) < 0.05) {
-        current.current = target.current;
-      }
-      setValue(current.current);
-      rafId = requestAnimationFrame(tick);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    current.current = target.current;
-    rafId = requestAnimationFrame(tick);
-
-    return () => {
-      running = false;
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(rafId);
-    };
-  }, []);
-
-  return value;
-}
-
 interface PetalProps {
   left: string;
   size: number;
@@ -61,48 +22,49 @@ interface PetalProps {
   delay: number;
   swayDuration: number;
   tint: string;
+  className?: string;
 }
 
-function Petal({ left, size, duration, delay, swayDuration, tint }: PetalProps) {
+function Petal({ left, size, duration, delay, swayDuration, tint, className }: PetalProps) {
   return (
     <div
-      className="pointer-events-none absolute top-0 will-change-transform"
+      className={`pointer-events-none absolute top-0 will-change-transform ${className ?? ""}`}
       style={{
         left,
-        width: size,
-        height: size * 0.72,
-        opacity: 0,
-        borderRadius: "62% 38% 58% 42% / 60% 55% 45% 40%",
-        background: `radial-gradient(circle at 30% 25%, ${tint}, color-mix(in oklab, var(--petaldeep) 70%, transparent) 72%, transparent)`,
-        boxShadow: `0 0 ${size}px color-mix(in oklab, var(--petal) 22%, transparent)`,
-        animation: `tribute-petal-fall ${duration}s linear infinite, tribute-sway ${swayDuration}s ease-in-out infinite`,
-        animationDelay: `${delay}s, ${delay / 2}s`,
+        animation: `tribute-petal-fall ${duration}s linear infinite`,
+        animationDelay: `${delay}s`,
       }}
-    />
+    >
+      <div
+        className="will-change-transform"
+        style={{
+          width: size,
+          height: size * 0.72,
+          opacity: 0.85,
+          borderRadius: "62% 38% 58% 42% / 60% 55% 45% 40%",
+          background: `radial-gradient(circle at 30% 25%, ${tint}, color-mix(in oklab, var(--petaldeep) 70%, transparent) 72%, transparent)`,
+          animation: `tribute-sway ${swayDuration}s ease-in-out infinite`,
+          animationDelay: `${delay / 2}s`,
+        }}
+      />
+    </div>
   );
 }
 
 function PetalLayer({
   petals,
-  scrollY,
-  parallaxSpeed,
-  blur,
   opacity,
+  layerRef,
 }: {
   petals: PetalProps[];
-  scrollY: number;
-  parallaxSpeed: number;
-  blur: number;
   opacity: number;
+  layerRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
     <div
+      ref={layerRef}
       className="pointer-events-none absolute inset-0 will-change-transform"
-      style={{
-        transform: `translate3d(0, ${(scrollY * parallaxSpeed).toFixed(2)}px, 0)`,
-        filter: blur > 0 ? `blur(${blur}px)` : undefined,
-        opacity,
-      }}
+      style={{ opacity }}
     >
       {petals.map((petal, index) => (
         <Petal key={index} {...petal} />
@@ -113,28 +75,58 @@ function PetalLayer({
 
 const nearPetals: PetalProps[] = [
   {
-    left: "9%",
-    size: 26,
+    left: "8%",
+    size: 24,
     duration: 15,
     delay: 0.4,
     swayDuration: 8,
     tint: "var(--petal-highlight)",
   },
-  { left: "31%", size: 20, duration: 18, delay: 3.2, swayDuration: 10, tint: "var(--petal)" },
   {
-    left: "57%",
-    size: 30,
+    left: "30%",
+    size: 20,
+    duration: 18,
+    delay: 3.2,
+    swayDuration: 10,
+    tint: "var(--petal)",
+    className: "hidden sm:block",
+  },
+  {
+    left: "58%",
+    size: 26,
     duration: 13,
     delay: 1.6,
     swayDuration: 7,
     tint: "var(--petal-highlight)",
   },
-  { left: "78%", size: 22, duration: 16, delay: 5.4, swayDuration: 9, tint: "var(--petal)" },
-  { left: "92%", size: 18, duration: 20, delay: 2.4, swayDuration: 11, tint: "var(--petal)" },
+  {
+    left: "80%",
+    size: 22,
+    duration: 16,
+    delay: 5.4,
+    swayDuration: 9,
+    tint: "var(--petal)",
+    className: "hidden sm:block",
+  },
+  {
+    left: "92%",
+    size: 18,
+    duration: 20,
+    delay: 2.4,
+    swayDuration: 11,
+    tint: "var(--petal)",
+  },
 ];
 
 const midPetals: PetalProps[] = [
-  { left: "18%", size: 14, duration: 24, delay: 1.1, swayDuration: 13, tint: "var(--petal)" },
+  {
+    left: "18%",
+    size: 14,
+    duration: 24,
+    delay: 1.1,
+    swayDuration: 13,
+    tint: "var(--petal)",
+  },
   {
     left: "44%",
     size: 12,
@@ -142,34 +134,121 @@ const midPetals: PetalProps[] = [
     delay: 6.5,
     swayDuration: 14,
     tint: "var(--petal-highlight)",
+    className: "hidden sm:block",
   },
-  { left: "66%", size: 15, duration: 22, delay: 4.2, swayDuration: 12, tint: "var(--petal)" },
-  { left: "86%", size: 11, duration: 29, delay: 8.4, swayDuration: 15, tint: "var(--petal)" },
+  {
+    left: "68%",
+    size: 15,
+    duration: 22,
+    delay: 4.2,
+    swayDuration: 12,
+    tint: "var(--petal)",
+  },
+  {
+    left: "86%",
+    size: 11,
+    duration: 29,
+    delay: 8.4,
+    swayDuration: 15,
+    tint: "var(--petal)",
+    className: "hidden sm:block",
+  },
 ];
 
 const farPetals: PetalProps[] = [
-  { left: "13%", size: 9, duration: 34, delay: 2.8, swayDuration: 17, tint: "var(--petal)" },
-  { left: "38%", size: 8, duration: 38, delay: 9.1, swayDuration: 19, tint: "var(--petal)" },
   {
-    left: "61%",
+    left: "14%",
+    size: 9,
+    duration: 34,
+    delay: 2.8,
+    swayDuration: 17,
+    tint: "var(--petal)",
+  },
+  {
+    left: "38%",
+    size: 8,
+    duration: 38,
+    delay: 9.1,
+    swayDuration: 19,
+    tint: "var(--petal)",
+    className: "hidden sm:block",
+  },
+  {
+    left: "62%",
     size: 9,
     duration: 32,
     delay: 5.7,
     swayDuration: 18,
     tint: "var(--petal-highlight)",
   },
-  { left: "81%", size: 7, duration: 40, delay: 12, swayDuration: 20, tint: "var(--petal)" },
+  {
+    left: "82%",
+    size: 7,
+    duration: 40,
+    delay: 12,
+    swayDuration: 20,
+    tint: "var(--petal)",
+    className: "hidden sm:block",
+  },
 ];
 
 function Index() {
-  const scrollY = useSmoothScroll();
   const [mounted, setMounted] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const ambientRef = useRef<HTMLDivElement>(null);
+  const farRef = useRef<HTMLDivElement>(null);
+  const midRef = useRef<HTMLDivElement>(null);
+  const nearRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setMounted(true);
+
+    let rafId = 0;
+    let targetY = 0;
+    let currentY = 0;
+    let isTicking = false;
+
+    const updateParallax = () => {
+      currentY += (targetY - currentY) * 0.12;
+
+      if (ambientRef.current) {
+        ambientRef.current.style.transform = `translate3d(0, ${(currentY * 0.04).toFixed(1)}px, 0)`;
+      }
+      if (farRef.current) {
+        farRef.current.style.transform = `translate3d(0, ${(currentY * 0.05).toFixed(1)}px, 0)`;
+      }
+      if (midRef.current) {
+        midRef.current.style.transform = `translate3d(0, ${(currentY * 0.11).toFixed(1)}px, 0)`;
+      }
+      if (nearRef.current) {
+        nearRef.current.style.transform = `translate3d(0, ${(currentY * 0.2).toFixed(1)}px, 0)`;
+      }
+
+      if (Math.abs(targetY - currentY) > 0.15) {
+        rafId = requestAnimationFrame(updateParallax);
+      } else {
+        isTicking = false;
+      }
+    };
+
+    const onScroll = () => {
+      targetY = window.scrollY;
+      if (!isTicking) {
+        isTicking = true;
+        rafId = requestAnimationFrame(updateParallax);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const handleReplySubmit = () => {
@@ -205,30 +284,30 @@ function Index() {
       <main className="relative min-h-screen w-full overflow-x-hidden bg-ink font-sans text-emberlight">
         {/* Ambient light */}
         <div
+          ref={ambientRef}
           className="pointer-events-none fixed inset-0 will-change-transform"
-          style={{ transform: `translate3d(0, ${(scrollY * 0.04).toFixed(2)}px, 0)` }}
           aria-hidden="true"
         >
           <div
-            className="absolute left-1/2 top-[38%] h-[140vmax] w-[140vmax] -translate-x-1/2 -translate-y-1/2"
+            className="absolute left-1/2 top-[38%] h-[100vmax] w-[100vmax] -translate-x-1/2 -translate-y-1/2"
             style={{
               background:
-                "radial-gradient(closest-side, color-mix(in oklab, var(--ember) 22%, transparent), color-mix(in oklab, var(--ember) 7%, transparent) 45%, transparent 72%)",
+                "radial-gradient(closest-side, color-mix(in oklab, var(--ember) 20%, transparent), color-mix(in oklab, var(--ember) 6%, transparent) 45%, transparent 72%)",
             }}
           />
           <div
-            className="animate-tribute-glow absolute -right-[12%] -top-[18%] h-[62vmax] w-[62vmax]"
+            className="animate-tribute-glow absolute -right-[12%] -top-[18%] h-[50vmax] w-[50vmax]"
             style={{
               background:
-                "radial-gradient(closest-side, color-mix(in oklab, var(--emberlight) 20%, transparent), transparent 68%)",
+                "radial-gradient(closest-side, color-mix(in oklab, var(--emberlight) 18%, transparent), transparent 68%)",
             }}
           />
           <div
-            className="animate-tribute-glow absolute -bottom-[22%] -left-[14%] h-[54vmax] w-[54vmax]"
+            className="animate-tribute-glow absolute -bottom-[22%] -left-[14%] h-[45vmax] w-[45vmax]"
             style={{
               animationDelay: "3.5s",
               background:
-                "radial-gradient(closest-side, color-mix(in oklab, var(--petaldeep) 14%, transparent), transparent 70%)",
+                "radial-gradient(closest-side, color-mix(in oklab, var(--petaldeep) 12%, transparent), transparent 70%)",
             }}
           />
         </div>
@@ -236,72 +315,51 @@ function Index() {
         {/* Parallax petals — far to near */}
         {mounted && (
           <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-            <PetalLayer
-              petals={farPetals}
-              scrollY={scrollY}
-              parallaxSpeed={0.05}
-              blur={3.5}
-              opacity={0.35}
-            />
-            <PetalLayer
-              petals={midPetals}
-              scrollY={scrollY}
-              parallaxSpeed={0.11}
-              blur={1.5}
-              opacity={0.6}
-            />
-            <PetalLayer
-              petals={nearPetals}
-              scrollY={scrollY}
-              parallaxSpeed={0.2}
-              blur={0}
-              opacity={0.85}
-            />
+            <PetalLayer petals={farPetals} layerRef={farRef} opacity={0.35} />
+            <PetalLayer petals={midPetals} layerRef={midRef} opacity={0.6} />
+            <PetalLayer petals={nearPetals} layerRef={nearRef} opacity={0.85} />
           </div>
         )}
 
         {/* Texture + vignette */}
         <div
-          className="tribute-grain pointer-events-none fixed inset-0 opacity-[0.5] mix-blend-soft-light"
+          className="tribute-grain pointer-events-none fixed inset-0 opacity-25 hidden sm:block"
           aria-hidden="true"
         />
         <div className="tribute-vignette pointer-events-none fixed inset-0" aria-hidden="true" />
 
         {/* Content */}
-        <div
-          className="relative z-10 mx-auto flex min-h-screen max-w-4xl flex-col items-center px-6 pt-20 pb-36 text-center sm:pt-28 sm:pb-44"
-          style={{ transform: `translate3d(0, ${(scrollY * -0.025).toFixed(2)}px, 0)` }}
-        >
+        <div className="relative z-10 mx-auto flex min-h-screen max-w-4xl flex-col items-center px-5 pt-16 pb-32 text-center sm:px-6 sm:pt-24 sm:pb-44">
           <p
-            className="animate-tribute-fade-up text-[11px] font-medium uppercase tracking-[0.6em] text-gold/75"
+            className="animate-tribute-fade-up text-[10.5px] sm:text-[11px] font-medium uppercase tracking-[0.6em] text-gold/75"
             style={{ animationDelay: "0.25s" }}
           >
             Teacher&#39;s Day
           </p>
 
           <div
-            className="animate-tribute-line mt-6 h-px w-20 bg-gradient-to-r from-transparent via-petal/60 to-transparent"
+            className="animate-tribute-line mt-5 sm:mt-6 h-px w-20 bg-gradient-to-r from-transparent via-petal/60 to-transparent"
             style={{ animationDelay: "0.6s" }}
           />
 
-          <h1 className="animate-tribute-title mt-14 font-serif leading-[1.06]">
-            <span className="block text-5xl font-light text-emberlight/95 sm:text-6xl">
+          <h1 className="animate-tribute-title mt-10 sm:mt-14 font-serif leading-[1.08]">
+            <span className="block text-4xl sm:text-6xl font-light text-emberlight/95">
               Happy Teachers&#39; Day,
             </span>
-            <span className="title-glow mt-5 block text-6xl font-medium tracking-[0.005em] text-emberlight sm:text-7xl">
+            <span className="title-glow mt-3 sm:mt-5 block text-5xl sm:text-7xl font-medium tracking-[0.005em] text-emberlight">
               Shuvangi Ma&#39;am
             </span>
           </h1>
 
           {/* Letter container — rises from below after the title settles */}
           <div
-            className="animate-tribute-letter mt-20 w-full max-w-2xl sm:mt-24"
+            className="animate-tribute-letter mt-16 w-full max-w-2xl sm:mt-24"
             style={{ animationDelay: "1.5s" }}
           >
-            <div className="relative overflow-hidden rounded-[28px] border border-petal/15 bg-ink2/55 p-7 shadow-[0_50px_140px_-50px_#000] backdrop-blur-2xl sm:p-12 md:p-14">
+            <div className="relative overflow-hidden rounded-[26px] sm:rounded-[28px] border border-petal/15 bg-ink2/80 p-6 shadow-[0_30px_90px_-30px_#000] backdrop-blur-md sm:backdrop-blur-xl sm:p-12 md:p-14">
               <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-petal/45 to-transparent" />
               <div className="pointer-events-none absolute -top-28 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-petal/[0.08] blur-3xl" />
-              <div className="tribute-grain pointer-events-none absolute inset-0 opacity-40 mix-blend-soft-light" />
+              <div className="tribute-grain pointer-events-none absolute inset-0 opacity-20 hidden sm:block" />
 
               <div className="relative text-left">
                 {/* Decorative letter badge & top petal */}

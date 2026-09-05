@@ -185,8 +185,7 @@
 @keyframes tribute-letter-reveal {
   0% {
     opacity: 0;
-    transform: translate3d(0, 120px, 0) scale(0.985);
-    filter: blur(10px);
+    transform: translate3d(0, 60px, 0) scale(0.985);
   }
   60% {
     opacity: 1;
@@ -194,10 +193,8 @@
   100% {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
-    filter: blur(0);
   }
 }
-
 
 @keyframes tribute-fade-up {
   0% {
@@ -224,17 +221,17 @@
 
 @keyframes tribute-petal-fall {
   0% {
-    transform: translate3d(0, -14vh, 0) rotate(0deg);
+    transform: translate3d(0, -12vh, 0);
     opacity: 0;
   }
   10% {
-    opacity: 0.75;
+    opacity: 0.8;
   }
   85% {
-    opacity: 0.4;
+    opacity: 0.45;
   }
   100% {
-    transform: translate3d(60px, 120vh, 0) rotate(300deg);
+    transform: translate3d(0, 115vh, 0);
     opacity: 0;
   }
 }
@@ -242,10 +239,10 @@
 @keyframes tribute-sway {
   0%,
   100% {
-    transform: translateX(0) rotate(0deg);
+    transform: translate3d(0, 0, 0) rotate(0deg);
   }
   50% {
-    transform: translate3d(18px, 0, 0) rotate(10deg);
+    transform: translate3d(22px, 0, 0) rotate(18deg);
   }
 }
 
@@ -260,15 +257,15 @@
 
 @utility animate-tribute-title {
   animation: tribute-title-reveal 2.6s cubic-bezier(0.22, 0.61, 0.24, 1) both;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
   backface-visibility: hidden;
 }
 
 @utility animate-tribute-letter {
-  animation: tribute-letter-reveal 2s cubic-bezier(0.22, 0.61, 0.24, 1) both;
-  will-change: transform, opacity, filter;
+  animation: tribute-letter-reveal 1.8s cubic-bezier(0.22, 0.61, 0.24, 1) both;
+  will-change: transform, opacity;
   backface-visibility: hidden;
-  transform: translate3d(0, 120px, 0);
+  transform: translate3d(0, 60px, 0);
 }
 
 @utility animate-tribute-fade-up {
